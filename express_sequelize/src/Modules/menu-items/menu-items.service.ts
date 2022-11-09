@@ -1,3 +1,5 @@
+import MenuItem from "./entities/menu-item.entity";
+
 export class MenuItemsService {
 
   /* TODO: complete getMenuItems so that it returns a nested menu structure
@@ -75,7 +77,20 @@ export class MenuItemsService {
     ]
   */
 
-  async getMenuItems() {
-    throw new Error('TODO in task 3');
-  }
+    async getMenuItems() {
+        try {
+            // recursive function to generate the required result
+            const convertFlatToNestedStructure = (items: MenuItem[], id: Number | null = null): any => items
+                .filter((item: MenuItem) => item.parentId === id)
+                .map((item: MenuItem) => ({
+                    ...item,
+                    children: convertFlatToNestedStructure(items, item.id),
+                }));
+            const menuItems = await MenuItem.findAll({ raw: true });
+            return convertFlatToNestedStructure(menuItems);
+        } catch (error) {
+            console.log(error);
+            throw new Error("Error in getMenuItems", error.message)
+        }
+    }
 }
